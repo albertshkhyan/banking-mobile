@@ -26,6 +26,14 @@ Expo (React Native) app with Clean Architecture: domain, data, presentation, sha
 
    Set `EXPO_PUBLIC_USE_MOCKS=false` if you need to disable mocks while keeping `npm start`. The app will call `EXPO_PUBLIC_API_URL` (default `https://api.example.com`).
 
+## Demos
+
+Demo GIFs use **280px width** for consistent layout; add new ones under `assets/demo/` with the same `<img width="280">` so they align.
+
+### Home
+
+<img src="assets/demo/home-screen-demo.gif" width="280" alt="Home screen demo" />
+
 ## Scripts
 
 | Script          | Description                                      |

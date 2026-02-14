@@ -10,4 +10,6 @@ export type Transaction = {
   type: 'credit' | 'debit';
   description: string;
   date: string;
+  merchant?: string;
+  status?: 'posted' | 'pending';
 };

@@ -10,5 +10,7 @@ export function mapTransactionDtoToEntity(dto: TransactionDto): Transaction {
     type: dto.type,
     description: dto.description,
     date: dto.date,
+    merchant: dto.merchant,
+    status: dto.status,
   };
 }

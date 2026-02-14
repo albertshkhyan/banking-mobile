@@ -17,3 +17,12 @@
 4. **Tap “Login with Face ID” (or Touch ID / Biometrics):** Biometric prompt appears. Complete it.
 5. **Verify:** App calls `POST /auth/refresh` with the stored refresh token; mock returns new tokens; you land on (tabs). If refresh fails (e.g. invalid/expired refresh token), tokens are cleared and you see an error; use password login.
 6. **No stored session:** If you never logged in or cleared data, the biometric button is still enabled but refresh will 401 → error message; use password login.
+
+---
+
+## Home Dashboard – how to test
+
+- **Normal:** Log in, then open Home (first tab). You should see: “Welcome back, Mock”, balance card (Total balance + Available), notification badge (count of unread), and “Recent Transactions” with up to 5 items (merchant, date, amount). All requests use `Authorization: Bearer <token>`; MSW/Node mock delay 300–800 ms.
+- **Expired token:** Let the access token expire (e.g. wait 2+ s or set `ACCESS_TOKEN_TTL_MS` low). Navigate to Home or pull to refresh. First request returns 401 → app calls `POST /auth/refresh` → retries → Home loads.
+- **Empty transactions:** To test empty state, temporarily change the mock so `GET /transactions?limit=5` returns `[]`. Home shows “No recent transactions”.
+- **Error scenario:** In `src/mocks/handlers.ts` set `SIMULATE_ERROR = true` at the top. Reload; one of the dashboard endpoints (e.g. `/me` or `/accounts/summary`) will return 500 and the Home screen will show the error message.

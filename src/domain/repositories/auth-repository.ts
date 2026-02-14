@@ -1,4 +1,5 @@
 import type { User } from '../entities/user';
+import type { Me } from '../entities/me';
 import type { Result } from '../../shared/types/result';
 
 export type LoginParams = { email: string; password: string };
@@ -13,4 +14,5 @@ export type AuthRepository = {
   register: (params: RegisterParams) => Promise<Result<User>>;
   refresh: () => Promise<Result<void>>;
   logout: () => Promise<void>;
+  getMe: () => Promise<Result<Me>>;
 };

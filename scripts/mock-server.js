@@ -14,8 +14,11 @@ const accounts = [
 ];
 
 const transactions = [
-  { id: 't1', accountId: '1', amount: -50, currency: 'USD', type: 'debit', description: 'Coffee shop', date: new Date().toISOString() },
-  { id: 't2', accountId: '1', amount: 200, currency: 'USD', type: 'credit', description: 'Transfer in', date: new Date().toISOString() },
+  { id: 't1', accountId: '1', amount: -8.5, currency: 'USD', type: 'debit', description: 'Coffee shop', date: new Date().toISOString(), merchant: 'Starbucks Coffee', status: 'posted' },
+  { id: 't2', accountId: '1', amount: 5250, currency: 'USD', type: 'credit', description: 'Transfer in', date: new Date(Date.now() - 864e5).toISOString(), merchant: 'Salary Deposit', status: 'posted' },
+  { id: 't3', accountId: '1', amount: -156.42, currency: 'USD', type: 'debit', description: 'Online purchase', date: new Date(Date.now() - 2 * 864e5).toISOString(), merchant: 'Amazon Purchase', status: 'posted' },
+  { id: 't4', accountId: '1', amount: -15.99, currency: 'USD', type: 'debit', description: 'Subscription', date: new Date(Date.now() - 3 * 864e5).toISOString(), merchant: 'Netflix Subscription', status: 'posted' },
+  { id: 't5', accountId: '1', amount: -50, currency: 'USD', type: 'debit', description: 'Grocery', date: new Date(Date.now() - 4 * 864e5).toISOString(), merchant: 'Whole Foods', status: 'pending' },
 ];
 
 const notifications = [
@@ -152,6 +155,25 @@ const server = http.createServer(async (req, res) => {
       return;
     }
     send(res, 200, { user: { id: '1', name: 'Mock User' } });
+    return;
+  }
+
+  if (path === '/me') {
+    if (!requireAuth(res, req)) return;
+    send(res, 200, { id: '1', firstName: 'Mock', lastName: 'User' });
+    return;
+  }
+
+  if (path === '/accounts/summary') {
+    if (!requireAuth(res, req)) return;
+    send(res, 200, { totalBalance: 62500.5, availableFunds: 61234.5, currency: 'USD' });
+    return;
+  }
+
+  if (path === '/notifications/unread-count') {
+    if (!requireAuth(res, req)) return;
+    const count = notifications.filter((n) => !n.read).length;
+    send(res, 200, { count });
     return;
   }
 

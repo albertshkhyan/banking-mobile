@@ -1,7 +1,9 @@
 export * from './entities/account';
+export * from './entities/accounts-summary';
 export * from './entities/transaction';
 export * from './entities/notification';
 export * from './entities/user';
+export * from './entities/me';
 export type { AccountRepository } from './repositories/account-repository';
 export type { AuthRepository } from './repositories/auth-repository';
 export type { BiometricRepository } from './repositories/biometric-repository';

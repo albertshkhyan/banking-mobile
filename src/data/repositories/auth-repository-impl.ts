@@ -9,6 +9,7 @@ import type {
   LoginResponseDto,
   RefreshResponseDto,
 } from '../dto/auth-dto';
+import type { MeDto } from '../dto/me-dto';
 
 function mapAuthUserToEntity(dto: AuthResponseDto['user']): User {
   return {
@@ -92,6 +93,20 @@ export function createAuthRepository(api: ApiClient, tokenStorage: TokenStorage)
     },
     async logout() {
       await tokenStorage.clearTokens();
+    },
+    async getMe() {
+      const res = await api.get<MeDto>('/me');
+      if (!isErr(res)) {
+        return { ok: true as const, value: { id: res.value.id, firstName: res.value.firstName, lastName: res.value.lastName } };
+      }
+      if (res.error.statusCode === 404) {
+        const fallback = await api.get<{ user: { id: string; name: string } }>('/auth/me');
+        if (!isErr(fallback)) {
+          const [firstName, ...rest] = (fallback.value.user.name || 'User').trim().split(/\s+/);
+          return { ok: true as const, value: { id: fallback.value.user.id, firstName: firstName ?? 'User', lastName: rest.join(' ') || '' } };
+        }
+      }
+      return res;
     },
   };
 }
