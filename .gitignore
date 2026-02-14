@@ -3,6 +3,9 @@
 # dependencies
 node_modules/
 
+# IDE / editor
+.cursor/
+
 # Expo
 .expo/
 dist/
