@@ -1,11 +1,9 @@
 import { env } from '../shared/config/env';
 
 /**
- * Call before app render when using mocks. MSW server patches global fetch.
- * In Expo entry: await bootstrap(); then render.
+ * Optional app init. When useMocks, the app uses the local mock server (npm run mock:server); no in-app MSW.
  */
 export async function bootstrap(): Promise<void> {
   if (!env.useMocks) return;
-  const { server } = await import('../mocks/server');
-  server.listen({ onUnhandledRequest: 'warn' });
+  // Mocks are served by scripts/mock-server.js; app apiUrl is already set to localhost:3099.
 }

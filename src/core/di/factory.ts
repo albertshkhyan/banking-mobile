@@ -5,6 +5,7 @@ import { createNotificationRepository } from '../../data/repositories/notificati
 import { createGetAccounts } from '../../domain/use-cases/get-accounts';
 import { createGetRecentTransactions } from '../../domain/use-cases/get-recent-transactions';
 import { createGetNotifications } from '../../domain/use-cases/get-notifications';
+import { isErr } from '../../shared/types/result';
 import { env } from '../../shared/config/env';
 
 function createRepos() {
@@ -35,4 +36,11 @@ export function getRepos() {
 /** Singleton use cases for injection into hooks. */
 export function getUseCases() {
   return useCasesInstance;
+}
+
+/** Auth gate: true if GET /auth/me returns 2xx, false otherwise. Used for redirect to welcome vs tabs. */
+export async function getAuthStatus(): Promise<boolean> {
+  const api = createApiClient(env.apiUrl);
+  const res = await api.get<{ user: unknown }>('/auth/me');
+  return !isErr(res);
 }

@@ -1,71 +1,63 @@
-# MSW Setup for Expo
+# Mocks Setup for Expo
 
-## Install
+This project uses a **local Node mock server** for development. MSW is used only for **Node-based tests** (Jest/Vitest); the running app talks to the mock server over HTTP.
 
-```bash
-npm install msw @tanstack/react-query
-```
+## How to run mocks
 
-## Mock-first flow
+1. **Start the mock server and Expo together (recommended)**
 
-1. Set `EXPO_PUBLIC_USE_MOCKS=true` in `.env` (or `EXPO_PUBLIC_USE_MOCKS=true` in shell).
-2. Set `EXPO_PUBLIC_API_URL` to the base URL your app will call. When using MSW node server, use a base URL that MSW will intercept (e.g. `https://api.example.com`); MSW patches `fetch` so the same path is intercepted.
-3. In app entry, call `bootstrap()` before rendering so MSW server starts and patches global `fetch`.
+   ```bash
+   npm run dev
+   ```
 
-## App entry (Expo Router)
+   This runs the mock API on `http://localhost:3099` and Expo in one terminal. In `__DEV__`, the app uses this URL automatically.
 
-In your root `_layout.tsx` or an async entry wrapper:
+2. **Or start the mock server only**
 
-- Option A: In `app/_layout.tsx`, use `useEffect` to call `bootstrap()` once (fire-and-forget), or
-- Option B: Create a wrapper component that awaits `bootstrap()` then renders children (recommended so UI waits for mocks).
+   ```bash
+   npm run mock:server
+   ```
 
-Example wrapper (use in root layout):
+   Then in another terminal run `npm start`. Use this if you prefer two terminals.
 
-```tsx
-// app/_layout.tsx
-import { bootstrap } from '@/src/app/bootstrap';
-import { AppProviders } from '@/src/app';
-import { useEffect, useState } from 'react';
+3. **Simulate logged-in (optional)**
 
-function useMocksReady() {
-  const [ready, setReady] = useState(!process.env.EXPO_PUBLIC_USE_MOCKS);
-  useEffect(() => {
-    if (!process.env.EXPO_PUBLIC_USE_MOCKS) {
-      setReady(true);
-      return;
-    }
-    bootstrap().then(() => setReady(true));
-  }, []);
-  return ready;
-}
+   To have `GET /auth/me` return 200 and open the app on (tabs) instead of the welcome screen:
 
-export default function RootLayout() {
-  const ready = useMocksReady();
-  if (!ready) return null; // or splash
-  return (
-    <AppProviders>
-      {/* ... Stack, etc. */}
-    </AppProviders>
-  );
-}
-```
+   ```bash
+   EXPO_PUBLIC_MOCK_AUTH=logged_in npm run dev
+   ```
 
-## MSW in React Native / Expo
+## Environment
 
-- **Node server (`msw/node`):** `setupServer` patches global `fetch`. In Expo/Metro, global `fetch` is available, so calling `server.listen()` in the app process will intercept requests. Use this for mock-first development.
-- **Browser worker (`msw/browser`):** For web builds only; use `worker.start()` in browser.
-- **Jest:** In `jest.setup.js`, import and call `server.listen()` and `server.close()` in afterEach.
+- **`EXPO_PUBLIC_USE_MOCKS`** – In `__DEV__`, mocks default **on** unless set to `false`. No need to set it for normal dev.
+- **`EXPO_PUBLIC_API_URL`** – When mocks are on, the app uses `http://localhost:3099` by default. For a physical device, set this to your machine IP (e.g. `http://192.168.1.x:3099`).
+- **`EXPO_PUBLIC_MOCK_AUTH`** – Set to `logged_in` to make the auth gate return 200. See above.
 
-## Handlers
+See the root [README.md](../README.md) for the full env table.
 
-Handlers live in `src/mocks/handlers.ts` and define:
+## Mock server endpoints
 
-- `GET */accounts` → list of accounts
-- `GET */transactions?limit=N` → recent transactions
-- `GET */notifications` → list of notifications
+The server in `scripts/mock-server.js` implements:
 
-All API calls in the app go through `createApiClient(env.apiUrl).get(path)`, so MSW intercepts when the request URL matches.
+| Method | Path | Response |
+|--------|------|----------|
+| GET | `/auth/me` | 401, or 200 `{ user }` when `EXPO_PUBLIC_MOCK_AUTH=logged_in` |
+| GET | `/accounts` | List of accounts |
+| GET | `/transactions?limit=N` | Recent transactions |
+| GET | `/notifications` | List of notifications |
+
+All app API calls go through `createApiClient(env.apiUrl).get(path)`. When mocks are on, `env.apiUrl` is `http://localhost:3099`, so requests hit the mock server.
+
+## MSW (tests only)
+
+For **Jest or Vitest** (Node), use the MSW server from `msw/node`:
+
+- **Handlers** – `src/mocks/handlers.ts` (same endpoints as the mock server, plus `GET */auth/me`).
+- **Server** – `src/mocks/server.ts` uses `setupServer` from `msw/node`. In test setup, call `server.listen()` and in teardown `server.close()`.
+
+The running app does **not** use in-app MSW; `msw/native` was not used because React Native lacks the `MessageEvent` global. The local mock server avoids that and works the same for dev.
 
 ## Turning off mocks
 
-Set `EXPO_PUBLIC_USE_MOCKS=false` and provide a real `EXPO_PUBLIC_API_URL`. No code changes needed; `bootstrap()` no-ops and the same API client hits the real backend.
+Set `EXPO_PUBLIC_USE_MOCKS=false` and provide a real `EXPO_PUBLIC_API_URL`. The app will call the real backend; no code changes needed.

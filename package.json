@@ -4,11 +4,13 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
+    "dev": "concurrently -n mocks,expo -c blue,magenta \"npm run mock:server\" \"expo start\"",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "mock:server": "node scripts/mock-server.js"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -40,9 +42,12 @@
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
+    "concurrently": "^9.1.2",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
+    "fast-text-encoding": "^1.0.6",
     "msw": "^2.12.10",
+    "react-native-url-polyfill": "^2.0.0",
     "typescript": "~5.9.2"
   },
   "private": true

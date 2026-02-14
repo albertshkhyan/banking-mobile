@@ -39,7 +39,16 @@ const notifications: NotificationDto[] = [
   },
 ];
 
+/** When set to 'logged_in', GET /auth/me returns 200; otherwise 401. Use for auth gate navigation. */
+const mockAuthState = process.env.EXPO_PUBLIC_MOCK_AUTH === 'logged_in';
+
 export const handlers = [
+  http.get('*/auth/me', () => {
+    if (mockAuthState) {
+      return HttpResponse.json({ user: { id: '1', name: 'Mock User' } });
+    }
+    return new HttpResponse(null, { status: 401 });
+  }),
   http.get('*/accounts', () => HttpResponse.json(accounts)),
   http.get('*/transactions', ({ request }) => {
     const url = new URL(request.url);
