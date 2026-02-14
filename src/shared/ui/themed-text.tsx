@@ -5,10 +5,12 @@ import { useThemeColor } from '../hooks/use-theme-color';
 
 export type ThemedTextType =
   | 'default'
+  | 'displayTitle'
   | 'title'
   | 'screenTitle'
   | 'heading'
   | 'defaultSemiBold'
+  | 'buttonLabel'
   | 'subtitle'
   | 'label'
   | 'caption'
@@ -37,10 +39,12 @@ export function ThemedText({
       style={[
         { color },
         type === 'default' && styles.default,
+        type === 'displayTitle' && Typography.displayTitle,
         type === 'title' && styles.title,
         type === 'screenTitle' && Typography.screenTitle,
         type === 'heading' && Typography.heading,
         type === 'defaultSemiBold' && styles.defaultSemiBold,
+        type === 'buttonLabel' && Typography.buttonLabel,
         type === 'subtitle' && Typography.subtitle,
         type === 'label' && Typography.label,
         type === 'caption' && Typography.caption,

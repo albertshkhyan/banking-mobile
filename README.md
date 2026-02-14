@@ -48,6 +48,7 @@ Expo (React Native) app with Clean Architecture: domain, data, presentation, sha
 ## Project structure
 
 - **`app/`** – Expo Router routes (`_layout.tsx`, `index` auth gate, `welcome`, `(tabs)`).
+- **`assets/`** – Static assets; `assets/icons/` holds SVG icons (imported as components via `react-native-svg-transformer`). See [assets/icons/README.md](assets/icons/README.md).
 - **`src/`** – Application code (Clean Architecture). See [src/README.md](src/README.md) for the folder tree and layer roles.
 
 High level: **domain** (entities, use cases, repository interfaces) → **data** (API client, repository implementations) → **presentation** (screens, components, hooks). **shared** holds config, theme, logger, and UI primitives. **src/core** provides DI (`getRepos`, `getUseCases`, `getAuthStatus`), providers, and navigation. **src/mocks** has MSW handlers for Node tests; the running app uses the local mock server from `scripts/mock-server.js`.

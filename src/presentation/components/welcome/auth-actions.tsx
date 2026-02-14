@@ -3,6 +3,9 @@ import { StyleSheet, View } from 'react-native';
 import { Button } from '../../../shared/ui';
 import { Spacing } from '../../../shared/config/theme';
 
+/** Figma 2-68: Login = white bg / dark text; Create Account = teal filled; link = muted white */
+const LINK_COLOR_WELCOME = 'rgba(255, 255, 255, 0.85)';
+
 type AuthActionsProps = {
   onLogin?: () => void;
   onCreateAccount?: () => void;
@@ -17,13 +20,13 @@ export function AuthActions({
   return (
     <View style={styles.container}>
       <Button
-        variant="primary"
+        variant="primaryInverted"
         title="Login"
         onPress={onLogin}
         style={styles.primaryButton}
       />
       <Button
-        variant="secondary"
+        variant="secondaryFilled"
         title="Create Account"
         onPress={onCreateAccount}
         style={styles.secondaryButton}
@@ -33,6 +36,7 @@ export function AuthActions({
         title="View Components"
         onPress={onViewComponents}
         style={styles.linkButton}
+        labelStyle={styles.linkLabel}
       />
     </View>
   );
@@ -51,5 +55,9 @@ const styles = StyleSheet.create({
   },
   linkButton: {
     alignSelf: 'center',
+    marginTop: Spacing.lg,
+  },
+  linkLabel: {
+    color: LINK_COLOR_WELCOME,
   },
 });

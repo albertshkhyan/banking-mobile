@@ -7,9 +7,9 @@
 const primary = '#1E3A5F';
 const primaryLight = '#2E5A8F';
 
-/** Landing gradient */
-const gradientStart = '#1A2F4A';
-const gradientEnd = '#2D5A87';
+/** Welcome screen linear gradient (dark blue → teal) */
+const gradientStart = '#1A3C8B';
+const gradientEnd = '#0891B2';
 
 export const Colors = {
   light: {
@@ -50,8 +50,8 @@ export const Colors = {
     tabIconDefault: '#9CA3AF',
     tabIconSelected: primaryLight,
     tabBarActivePill: '#374151',
-    gradientStart: '#0F172A',
-    gradientEnd: '#1E3A5F',
+    gradientStart: '#1A3C8B',
+    gradientEnd: '#0891B2',
     landingCardBg: '#1E293B',
     landingIconBg: '#334155',
   },
@@ -74,7 +74,14 @@ export const BorderRadius = {
   full: 9999,
 } as const;
 
+/** Typography aligned with welcome/splash UI: display title, tagline, feature list, buttons, link */
 export const Typography = {
+  /** Hero app name: very large, bold (e.g. SecureBank) */
+  displayTitle: {
+    fontSize: 38,
+    fontWeight: '700' as const,
+    lineHeight: 44,
+  },
   screenTitle: {
     fontSize: 28,
     fontWeight: '700' as const,
@@ -85,6 +92,7 @@ export const Typography = {
     fontWeight: '600' as const,
     lineHeight: 28,
   },
+  /** Tagline under hero (e.g. Banking made simple) */
   subtitle: {
     fontSize: 16,
     fontWeight: '400' as const,
@@ -95,24 +103,33 @@ export const Typography = {
     fontWeight: '400' as const,
     lineHeight: 24,
   },
+  /** Primary/secondary button labels: medium–semi-bold, 18–20pt */
+  buttonLabel: {
+    fontSize: 19,
+    fontWeight: '600' as const,
+    lineHeight: 24,
+  },
   label: {
     fontSize: 14,
     fontWeight: '600' as const,
     lineHeight: 20,
   },
+  /** Feature list, captions (e.g. Secure • Fast • Reliable) */
   caption: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '400' as const,
-    lineHeight: 20,
+    lineHeight: 22,
   },
+  /** Tertiary action (e.g. View Components): small, regular */
   link: {
-    fontSize: 16,
+    fontSize: 15,
+    fontWeight: '400' as const,
+    lineHeight: 22,
+  },
+  /** Tagline under display title: 16–18pt, regular */
+  tagline: {
+    fontSize: 17,
     fontWeight: '400' as const,
     lineHeight: 24,
-  },
-  tagline: {
-    fontSize: 14,
-    fontWeight: '400' as const,
-    lineHeight: 20,
   },
 } as const;

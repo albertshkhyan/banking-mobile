@@ -1,39 +1,52 @@
 import { StyleSheet, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 
-import { Card, ThemedText } from '../../../shared/ui';
+import { BankBuildingIcon, ThemedText } from '../../../shared/ui';
 import { BorderRadius, Spacing } from '../../../shared/config/theme';
-import { useThemeColor } from '../../../shared/hooks/use-theme-color';
 
 const DEFAULT_LABEL = 'Secure • Fast • Reliable';
+
+/** Figma 2-56: container dimensions (px) */
+const CONTAINER_SIZE = 345;
+/** Figma 2-56: container background (rounded card on gradient) */
+const CONTAINER_BG = 'rgba(255, 255, 255, 0.08)';
+/** Translucent light blue for icon circle */
+const HIGHLIGHT_ICON_BG = 'rgba(255, 255, 255, 0.2)';
+const HIGHLIGHT_TEXT_COLOR = '#FFFFFF';
 
 type SecurityHighlightCardProps = {
   label?: string;
 };
 
 export function SecurityHighlightCard({ label = DEFAULT_LABEL }: SecurityHighlightCardProps) {
-  const iconColor = useThemeColor({}, 'text');
-  const iconBg = useThemeColor({}, 'landingIconBg');
-
   return (
-    <Card variant="elevated" style={styles.card}>
-      <View style={styles.inner}>
-        <View style={[styles.iconCircle, { backgroundColor: iconBg }]}>
-          <Ionicons name="shield-checkmark" size={40} color={iconColor} />
+    <View style={styles.outer}>
+      <View style={styles.container}>
+        <View style={styles.inner}>
+          <View style={styles.iconCircle}>
+            <BankBuildingIcon size={40} color={HIGHLIGHT_TEXT_COLOR} />
+          </View>
+          <ThemedText type="caption" style={styles.label}>
+            {label}
+          </ThemedText>
         </View>
-        <ThemedText type="tagline" style={styles.label}>
-          {label}
-        </ThemedText>
       </View>
-    </Card>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
+  outer: {
+    alignItems: 'center',
     marginBottom: Spacing.xxl,
-    minHeight: 180,
+  },
+  /** Figma 2-56: rounded container wrapping icon + label */
+  container: {
+    width: CONTAINER_SIZE,
+    height: CONTAINER_SIZE,
+    borderRadius: BorderRadius.xl,
+    backgroundColor: CONTAINER_BG,
     justifyContent: 'center',
+    alignItems: 'center',
   },
   inner: {
     alignItems: 'center',
@@ -42,11 +55,13 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: BorderRadius.full,
+    backgroundColor: HIGHLIGHT_ICON_BG,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.lg,
   },
   label: {
+    color: HIGHLIGHT_TEXT_COLOR,
     textAlign: 'center',
   },
 });
