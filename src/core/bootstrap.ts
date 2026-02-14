@@ -1,9 +1,11 @@
 import { env } from '../shared/config/env';
 
 /**
- * Optional app init. When useMocks, the app uses the local mock server (npm run mock:server); no in-app MSW.
+ * Optional app init. In dev with useMocks, the app uses the local mock server (npm run dev or mock:server).
+ * Auth is token-based: login stores access/refresh in SecureStore; protected routes and /auth/me require Bearer.
+ * For easier testing: log in once; tokens persist in SecureStore until logout or expiry.
  */
 export async function bootstrap(): Promise<void> {
   if (!env.useMocks) return;
-  // Mocks are served by scripts/mock-server.js; app apiUrl is already set to localhost:3099.
+  // Mock server runs at env.apiUrl (localhost:3099). No in-app MSW worker (RN has no Service Worker).
 }

@@ -43,6 +43,8 @@ The server in `scripts/mock-server.js` implements:
 | Method | Path | Response |
 |--------|------|----------|
 | GET | `/auth/me` | 401, or 200 `{ user }` when `EXPO_PUBLIC_MOCK_AUTH=logged_in` |
+| POST | `/auth/login` | Body: `{ email, password }`. 200 `{ user }` or 401 `{ message }` |
+| POST | `/auth/register` | Body: `{ name, email, password }`. 201 `{ user }` or 400 `{ message }` |
 | GET | `/accounts` | List of accounts |
 | GET | `/transactions?limit=N` | Recent transactions |
 | GET | `/notifications` | List of notifications |

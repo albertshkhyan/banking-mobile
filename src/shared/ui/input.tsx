@@ -1,4 +1,5 @@
 import {
+  Platform,
   StyleSheet,
   TextInput,
   View,
@@ -23,12 +24,19 @@ export function Input({
   containerStyle,
   style,
   placeholderTextColor,
+  secureTextEntry,
+  textContentType,
   ...rest
 }: InputProps) {
   const surface = useThemeColor({}, 'surface');
   const border = useThemeColor({}, 'border');
   const placeholder = useThemeColor({}, 'placeholder');
   const text = useThemeColor({}, 'text');
+
+  // On iOS, avoid keychain/autofill when focusing password fields to prevent Expo Go crash.
+  const resolvedTextContentType =
+    textContentType ??
+    (secureTextEntry && Platform.OS === 'ios' ? 'none' : undefined);
 
   return (
     <View style={[styles.container, containerStyle]}>
@@ -46,6 +54,8 @@ export function Input({
             leftIcon ? styles.inputWithIcon : undefined,
           ]}
           placeholderTextColor={placeholder}
+          secureTextEntry={secureTextEntry}
+          textContentType={resolvedTextContentType}
           {...rest}
         />
       </View>

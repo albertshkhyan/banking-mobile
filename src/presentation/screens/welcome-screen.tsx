@@ -15,8 +15,8 @@ export function WelcomeScreen() {
       <HeroSection />
       <SecurityHighlightCard />
       <AuthActions
-        onLogin={() => router.push('/(tabs)')}
-        onCreateAccount={() => router.push('/(tabs)/accounts')}
+        onLogin={() => router.push('/login')}
+        onCreateAccount={() => router.push('/create-account')}
         onViewComponents={() => router.push('/(tabs)/settings')}
       />
     </GradientScreenLayout>
