@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
+import { View, StyleSheet, Pressable, Image } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -10,7 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { ThemedText } from '../../../shared/ui';
-import { BorderRadius, Spacing } from '../../../shared/config/theme';
+import { Spacing } from '../../../shared/config/theme';
 import { CardBack } from './card-back';
 
 /** ISO/IEC 7810 ID-1 approximate ratio; slightly shorter to fit back content without clipping */
@@ -22,8 +22,11 @@ const PERSPECTIVE = 550;
 /** Slight scale down at mid-flip (edge-on) for card thickness */
 const FLIP_SCALE_EDGE = 0.97;
 const CARD_GRADIENT = ['#1A3C8B', '#0E7490'] as const;
-const CHIP_GRADIENT = ['#D4AF37', '#9A7B2E', '#6B5B2E'] as const;
 const CARD_RADIUS = 14;
+
+const CHIP_IMAGE = require('../../../../assets/icons/chip-cart.png');
+const CHIP_WIDTH = 44;
+const CHIP_HEIGHT = 34;
 const LABEL_MUTED = 'rgba(176,196,222,0.95)';
 
 export interface DebitCreditCardData {
@@ -134,13 +137,12 @@ export function DebitCreditFlipCard({ data }: DebitCreditFlipCardProps) {
             <View style={styles.frontContent}>
               <View style={styles.frontTopRow}>
                 <View style={styles.chipWrap}>
-                  <LinearGradient
-                    colors={[...CHIP_GRADIENT]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.chip}
+                  <Image
+                    source={CHIP_IMAGE}
+                    style={styles.chipImage}
+                    resizeMode="contain"
+                    accessibilityIgnoresInvertColors
                   />
-                  <View style={styles.chipInner} />
                 </View>
                 <View style={styles.eyePlaceholder} />
               </View>
@@ -299,21 +301,10 @@ const styles = StyleSheet.create({
   chipWrap: {
     alignSelf: 'flex-start',
   },
-  chip: {
-    width: 44,
-    height: 34,
+  chipImage: {
+    width: CHIP_WIDTH,
+    height: CHIP_HEIGHT,
     borderRadius: 8,
-    overflow: 'hidden',
-  },
-  chipInner: {
-    position: 'absolute',
-    left: 6,
-    top: 6,
-    right: 6,
-    bottom: 6,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
-    borderRadius: 4,
   },
   cardNumber: {
     fontSize: 20,

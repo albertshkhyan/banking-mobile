@@ -3,6 +3,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import 'react-native-reanimated';
+import ToastManager from 'toastify-react-native';
 
 import { AppProviders } from '../src/core';
 import { useColorScheme } from '../src/shared/hooks';
@@ -22,6 +23,7 @@ export default function RootLayout() {
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           </Stack>
           <StatusBar style="auto" />
+          <ToastManager />
         </AppProviders>
       </ThemeProvider>
     </SafeAreaProvider>

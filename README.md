@@ -34,6 +34,10 @@ Demo GIFs use **280px width** for consistent layout; add new ones under `assets/
 
 <img src="assets/demo/home-screen-demo.gif" width="280" alt="Home screen demo" />
 
+### Cards
+
+<img src="assets/demo/cards-screen-demo.gif" width="280" alt="Cards screen demo" />
+
 ## Scripts
 
 | Script          | Description                                      |
