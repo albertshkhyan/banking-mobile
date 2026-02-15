@@ -17,7 +17,10 @@ import { CardBack } from './card-back';
 const CARD_ASPECT_RATIO = 1.55;
 
 const FLIP_DURATION_MS = 700;
-const PERSPECTIVE = 1000;
+/** Stronger perspective (smaller value) = more 3D depth during flip */
+const PERSPECTIVE = 550;
+/** Slight scale down at mid-flip (edge-on) for card thickness */
+const FLIP_SCALE_EDGE = 0.97;
 const CARD_GRADIENT = ['#1A3C8B', '#0E7490'] as const;
 const CHIP_GRADIENT = ['#D4AF37', '#9A7B2E', '#6B5B2E'] as const;
 const CARD_RADIUS = 14;
@@ -83,16 +86,18 @@ export function DebitCreditFlipCard({ data }: DebitCreditFlipCardProps) {
 
   const frontAnimatedStyle = useAnimatedStyle(() => {
     const rotateY = `${interpolate(flipped.value, [0, 1], [0, 180])}deg`;
+    const scale = interpolate(flipped.value, [0, 0.5, 1], [1, FLIP_SCALE_EDGE, 1]);
     return {
-      transform: [{ rotateY }],
+      transform: [{ rotateY }, { scale }],
       backfaceVisibility: 'hidden' as const,
     };
   });
 
   const backAnimatedStyle = useAnimatedStyle(() => {
     const rotateY = `${interpolate(flipped.value, [0, 1], [180, 360])}deg`;
+    const scale = interpolate(flipped.value, [0, 0.5, 1], [1, FLIP_SCALE_EDGE, 1]);
     return {
-      transform: [{ rotateY }],
+      transform: [{ rotateY }, { scale }],
       backfaceVisibility: 'hidden' as const,
     };
   });
