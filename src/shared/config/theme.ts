@@ -28,6 +28,9 @@ export const Colors = {
     tabIconDefault: '#9CA3AF',
     tabIconSelected: primary,
     tabBarActivePill: '#F3F4F6',
+    /** Action pills (Limits, PIN, Report) – Figma 2-834 */
+    actionPillBg: '#F0F2F7',
+    actionPillText: '#3C61B2',
     /** Landing screen */
     gradientStart,
     gradientEnd,
@@ -50,6 +53,8 @@ export const Colors = {
     tabIconDefault: '#9CA3AF',
     tabIconSelected: primaryLight,
     tabBarActivePill: '#374151',
+    actionPillBg: '#374151',
+    actionPillText: '#93C5FD',
     gradientStart: '#1A3C8B',
     gradientEnd: '#0891B2',
     landingCardBg: '#1E293B',
