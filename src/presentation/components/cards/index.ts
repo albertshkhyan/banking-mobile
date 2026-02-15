@@ -1,3 +1,4 @@
+export { CardBack, type CardBackProps } from './card-back';
 export {
   DebitCreditFlipCard,
   type DebitCreditFlipCardProps,

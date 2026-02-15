@@ -5,6 +5,7 @@ import { DebitCreditFlipCard } from '../components/cards';
 
 const SAMPLE_CARD = {
   last4: '4242',
+  fullNumber: '4242424242424242',
   holderName: 'John Doe',
   expiryMonth: 12,
   expiryYear: 2028,
@@ -27,5 +28,5 @@ export function CardsScreen() {
 const styles = StyleSheet.create({
   wrapper: { flex: 1 },
   container: { flex: 1, paddingHorizontal: 24, paddingTop: 24 },
-  cardSection: { alignItems: 'center', marginTop: 24 },
+  cardSection: { width: '100%', marginTop: 24 },
 });

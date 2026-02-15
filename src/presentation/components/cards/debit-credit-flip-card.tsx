@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -6,15 +6,15 @@ import Animated, {
   withTiming,
   interpolate,
 } from 'react-native-reanimated';
+import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { ThemedText } from '../../../shared/ui';
 import { BorderRadius, Spacing } from '../../../shared/config/theme';
+import { CardBack } from './card-back';
 
-/** ISO/IEC 7810 ID-1 approximate ratio (85.60 / 53.98) */
-const CARD_ASPECT_RATIO = 1.586;
-const CARD_WIDTH = 320;
-const CARD_HEIGHT = Math.round(CARD_WIDTH / CARD_ASPECT_RATIO);
+/** ISO/IEC 7810 ID-1 approximate ratio; slightly shorter to fit back content without clipping */
+const CARD_ASPECT_RATIO = 1.55;
 
 const FLIP_DURATION_MS = 700;
 const PERSPECTIVE = 1000;
@@ -22,15 +22,12 @@ const CARD_GRADIENT = ['#1A3C8B', '#0E7490'] as const;
 const CHIP_GRADIENT = ['#D4AF37', '#9A7B2E', '#6B5B2E'] as const;
 const CARD_RADIUS = 14;
 const LABEL_MUTED = 'rgba(176,196,222,0.95)';
-/** Magnetic stripe: solid dark band across top of back */
-const STRIP_COLOR = '#0f172a';
-/** Light blue panels for signature strip and CVV (card-back style) */
-const BACK_PANEL_BG = 'rgba(255,255,255,0.22)';
-const TAP_HINT_COLOR = '#BAE6FD';
 
 export interface DebitCreditCardData {
-  /** Last 4 digits (displayed); full number masked as •••• •••• •••• XXXX */
+  /** Last 4 digits (always safe to show); used when fullNumber not provided or details hidden */
   last4: string;
+  /** Full card number (digits only or with spaces); shown only when details visible. Optional. */
+  fullNumber?: string;
   holderName: string;
   expiryMonth: number;
   expiryYear: number;
@@ -47,17 +44,41 @@ function maskNumber(last4: string): string {
   return `•••• •••• •••• ${last4}`;
 }
 
+/** Format full number as groups of 4 (e.g. 4242 4242 4242 4242). Digits only. */
+function formatFullNumber(fullNumber: string): string {
+  const digits = fullNumber.replace(/\D/g, '');
+  const groups: string[] = [];
+  for (let i = 0; i < digits.length; i += 4) {
+    groups.push(digits.slice(i, i + 4));
+  }
+  return groups.join(' ');
+}
+
+const EYE_ICON_SIZE = 24;
+const EYE_BUTTON_SIZE = 44;
+const EYE_FROSTED_BG = 'rgba(255,255,255,0.22)';
+/** By default details (card number, CVV) are hidden; show closed eye. */
+const DEFAULT_DETAILS_VISIBLE = false;
+
 export interface DebitCreditFlipCardProps {
   data: DebitCreditCardData;
 }
 
 export function DebitCreditFlipCard({ data }: DebitCreditFlipCardProps) {
   const flipped = useSharedValue(0);
+  const [detailsVisible, setDetailsVisible] = useState(DEFAULT_DETAILS_VISIBLE);
+  const [isBackVisible, setIsBackVisible] = useState(false);
+
+  const toggleDetails = useCallback(() => {
+    setDetailsVisible((v) => !v);
+  }, []);
 
   const flip = useCallback(() => {
-    flipped.value = withTiming(flipped.value === 1 ? 0 : 1, {
+    const toBack = flipped.value < 0.5;
+    flipped.value = withTiming(toBack ? 1 : 0, {
       duration: FLIP_DURATION_MS,
     });
+    setTimeout(() => setIsBackVisible(toBack), FLIP_DURATION_MS);
   }, [flipped]);
 
   const frontAnimatedStyle = useAnimatedStyle(() => {
@@ -76,41 +97,50 @@ export function DebitCreditFlipCard({ data }: DebitCreditFlipCardProps) {
     };
   });
 
+  const displayNumber =
+    detailsVisible && data.fullNumber
+      ? formatFullNumber(data.fullNumber)
+      : maskNumber(data.last4);
+
   return (
     <View style={styles.wrapper}>
-      <Pressable
-        onPress={flip}
-        style={styles.flipCard}
-        accessibilityLabel="Flip card"
-        accessibilityRole="button"
-        accessibilityHint="Double tap to show card back with CVV"
-      >
-        <View style={[styles.perspectiveWrap, { transform: [{ perspective: PERSPECTIVE }] }]}>
-        <Animated.View style={[styles.face, styles.frontFace, frontAnimatedStyle]}>
-          <LinearGradient
-            colors={[...CARD_GRADIENT]}
-            start={{ x: 0.5, y: 0 }}
-            end={{ x: 0.5, y: 1 }}
-            style={styles.gradient}
-          />
-          <LinearGradient
-            colors={['rgba(255,255,255,0.12)', 'transparent']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.gloss}
-          />
-          <View style={styles.frontContent}>
-            <View style={styles.chipWrap}>
-              <LinearGradient
-                colors={[...CHIP_GRADIENT]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.chip}
-              />
-              <View style={styles.chipInner} />
-            </View>
+      <View style={styles.cardContainer}>
+        <Pressable
+          onPress={flip}
+          style={styles.flipCard}
+          accessibilityLabel="Flip card"
+          accessibilityRole="button"
+          accessibilityHint="Double tap to show card back with CVV"
+        >
+          <View style={[styles.perspectiveWrap, { transform: [{ perspective: PERSPECTIVE }] }]}>
+          <Animated.View style={[styles.face, styles.frontFace, frontAnimatedStyle]}>
+            <LinearGradient
+              colors={[...CARD_GRADIENT]}
+              start={{ x: 0.5, y: 0 }}
+              end={{ x: 0.5, y: 1 }}
+              style={styles.gradient}
+            />
+            <LinearGradient
+              colors={['rgba(255,255,255,0.12)', 'transparent']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.gloss}
+            />
+            <View style={styles.frontContent}>
+              <View style={styles.frontTopRow}>
+                <View style={styles.chipWrap}>
+                  <LinearGradient
+                    colors={[...CHIP_GRADIENT]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.chip}
+                  />
+                  <View style={styles.chipInner} />
+                </View>
+                <View style={styles.eyePlaceholder} />
+              </View>
             <ThemedText style={styles.cardNumber} lightColor="#FFF" darkColor="#FFF">
-              {maskNumber(data.last4)}
+              {displayNumber}
             </ThemedText>
             <View style={styles.bottomRow}>
               <View style={styles.labelBlock}>
@@ -134,37 +164,46 @@ export function DebitCreditFlipCard({ data }: DebitCreditFlipCardProps) {
         </Animated.View>
 
         <Animated.View style={[styles.face, styles.backFace, backAnimatedStyle]}>
-          <LinearGradient
-            colors={[...CARD_GRADIENT]}
-            start={{ x: 0.5, y: 0 }}
-            end={{ x: 0.5, y: 1 }}
-            style={styles.gradient}
+          <CardBack
+            cvv={data.cvv}
+            isCvvVisible={detailsVisible}
+            onToggleCvv={toggleDetails}
+            onFlip={flip}
           />
-          <View style={styles.backContent}>
-            <View style={styles.magneticStrip} />
-            <View style={styles.signatureStrip}>
-              <ThemedText style={styles.signatureLabel} lightColor={LABEL_MUTED} darkColor={LABEL_MUTED}>
-                Authorized signature
-              </ThemedText>
-              <View style={styles.signatureLine} />
-            </View>
-            <ThemedText style={styles.tapHint} lightColor={TAP_HINT_COLOR} darkColor={TAP_HINT_COLOR}>
-              Tap to flip
-            </ThemedText>
-            <View style={styles.cvvRow}>
-              <ThemedText style={styles.cvvLabel} lightColor={LABEL_MUTED} darkColor={LABEL_MUTED}>
-                CVV
-              </ThemedText>
-              <View style={styles.cvvBox}>
-                <ThemedText style={styles.cvvValue} lightColor="#FFF" darkColor="#FFF">
-                  {data.cvv}
-                </ThemedText>
-              </View>
-            </View>
-          </View>
         </Animated.View>
         </View>
-      </Pressable>
+        </Pressable>
+        {!isBackVisible && (
+          <Pressable
+            onPress={toggleDetails}
+            style={({ pressed }) => [styles.eyeButton, pressed && styles.eyeButtonPressed]}
+            hitSlop={{ top: Spacing.sm, bottom: Spacing.sm, left: Spacing.sm, right: Spacing.sm }}
+            accessibilityLabel={detailsVisible ? 'Hide card number' : 'Show card number'}
+            accessibilityRole="button"
+          >
+            <Ionicons
+              name={detailsVisible ? 'eye-outline' : 'eye-off-outline'}
+              size={EYE_ICON_SIZE}
+              color="#FFF"
+            />
+          </Pressable>
+        )}
+        {isBackVisible && (
+          <Pressable
+            onPress={toggleDetails}
+            style={({ pressed }) => [styles.eyeButton, pressed && styles.eyeButtonPressed]}
+            hitSlop={{ top: Spacing.sm, bottom: Spacing.sm, left: Spacing.sm, right: Spacing.sm }}
+            accessibilityLabel={detailsVisible ? 'Hide security code' : 'Show security code'}
+            accessibilityRole="button"
+          >
+            <Ionicons
+              name={detailsVisible ? 'eye-outline' : 'eye-off-outline'}
+              size={EYE_ICON_SIZE}
+              color="#FFF"
+            />
+          </Pressable>
+        )}
+      </View>
       <ThemedText type="caption" style={styles.flipLabel}>
         Tap card to flip
       </ThemedText>
@@ -174,18 +213,47 @@ export function DebitCreditFlipCard({ data }: DebitCreditFlipCardProps) {
 
 const styles = StyleSheet.create({
   wrapper: {
+    width: '100%',
     alignItems: 'center',
     gap: Spacing.sm,
   },
+  cardContainer: {
+    width: '100%',
+    aspectRatio: CARD_ASPECT_RATIO,
+    position: 'relative',
+  },
   flipCard: {
-    width: CARD_WIDTH,
-    height: CARD_HEIGHT,
+    ...StyleSheet.absoluteFillObject,
     borderRadius: CARD_RADIUS,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.22,
     shadowRadius: 10,
     elevation: 8,
+  },
+  eyePlaceholder: {
+    width: EYE_BUTTON_SIZE,
+    height: EYE_BUTTON_SIZE,
+  },
+  eyeButton: {
+    position: 'absolute',
+    top: Spacing.md,
+    right: Spacing.md,
+    width: EYE_BUTTON_SIZE,
+    height: EYE_BUTTON_SIZE,
+    borderRadius: EYE_BUTTON_SIZE / 2,
+    backgroundColor: EYE_FROSTED_BG,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+    zIndex: 10,
+  },
+  eyeButtonPressed: {
+    opacity: 0.85,
   },
   perspectiveWrap: {
     width: '100%',
@@ -216,6 +284,12 @@ const styles = StyleSheet.create({
     padding: Spacing.xl,
     paddingTop: Spacing.lg + 4,
     justifyContent: 'space-between',
+  },
+  frontTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
   },
   chipWrap: {
     alignSelf: 'flex-start',
@@ -265,59 +339,6 @@ const styles = StyleSheet.create({
   },
   expiryBlock: {
     alignItems: 'flex-end',
-  },
-  backContent: {
-    flex: 1,
-    paddingHorizontal: Spacing.lg,
-    paddingTop: 0,
-    paddingBottom: Spacing.xl,
-  },
-  magneticStrip: {
-    height: 56,
-    backgroundColor: STRIP_COLOR,
-    marginHorizontal: -Spacing.lg,
-    marginBottom: Spacing.xl,
-    borderBottomLeftRadius: 8,
-    borderBottomRightRadius: 8,
-  },
-  signatureStrip: {
-    marginBottom: Spacing.md,
-  },
-  signatureLabel: {
-    fontSize: 9,
-    letterSpacing: 1,
-    marginBottom: 6,
-  },
-  signatureLine: {
-    height: 38,
-    backgroundColor: BACK_PANEL_BG,
-    borderRadius: 6,
-  },
-  tapHint: {
-    textAlign: 'center',
-    fontSize: 13,
-    marginBottom: Spacing.lg,
-  },
-  cvvRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-  },
-  cvvLabel: {
-    fontSize: 10,
-    letterSpacing: 1.2,
-  },
-  cvvBox: {
-    flex: 1,
-    backgroundColor: BACK_PANEL_BG,
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.lg,
-    borderRadius: 6,
-  },
-  cvvValue: {
-    fontSize: 17,
-    fontWeight: '700',
-    letterSpacing: 2,
   },
   flipLabel: {
     textAlign: 'center',
